@@ -13,7 +13,6 @@ type EditorProps = {
   onChange?: (value: string) => void;
 };
 
-
 const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
   const [value, setValue] = useState<string>(initValue);
 
@@ -31,22 +30,14 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
       autoFocus={true}
       onChangeText={changeHandler}>
       <Text>
-        {value.split(/(\n)/).map((line, index) => {
-          const key = `${index}-${line}`;
-          if (line === '\n') {
-            return <Text key={key}>{ line }</Text>;
-          }
+        {value.split('\n').map((line, index, lines) => {
           const style = line.match(/^#/) && styles.header;
-
-          const components = line.split(/(\[[x ]\])/).map((str, index) => {
-            const key = `${index}-${str}`;
-            if (['[ ]', '[x]'].includes(str)) {
-              return <Text key={key} onPress={() => alert('x')}>{ str }</Text>;
-            }
-            return <Text key={key}>{ str }</Text>
-          });
-
-          return <Text key={key} style={style}>{ components }</Text>;
+          return (
+            <Fragment key={`${index}-${line}`}>
+              <Text style={style}>{ line }</Text>
+              {lines.length === index + 1 ? null : '\n'}
+            </Fragment>
+          );
         })}
       </Text>
     </TextInput>
