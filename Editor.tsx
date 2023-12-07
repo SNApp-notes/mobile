@@ -46,11 +46,7 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
             return <Text key={key}>{ str }</Text>
           });
 
-          return (
-            <Fragment key={key}>
-              <Text style={style}>{ components }</Text>
-            </Fragment>
-          );
+          return <Text key={key} style={style}>{ components }</Text>;
         })}
       </Text>
     </TextInput>
