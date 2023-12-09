@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -6,11 +6,18 @@ import {
   StyleProp,
   TextStyle
 } from 'react-native';
+import SyntaxHighlighter from 'react-native-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/styles/prism';
+import { parse, type HeaderNode, type MarkdownNode } from './parser';
 
 type EditorProps = {
   initValue: string;
   style?: StyleProp<TextStyle>;
   onChange?: (value: string) => void;
+};
+
+const isHeaderNode = (node: MarkdownNode): node is HeaderNode => {
+  return node.type === 'header';
 };
 
 const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
@@ -20,6 +27,12 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
     setValue(text);
     onChange(text);
   };
+  const ast = parse(value);
+
+  
+  const headers: HeaderNode[] = ast.filter(isHeaderNode);
+  
+  console.log(JSON.stringify(headers, null, 4));
 
   return (
     <TextInput
@@ -30,14 +43,15 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
       autoFocus={true}
       onChangeText={changeHandler}>
       <Text>
-        {value.split('\n').map((line, index, lines) => {
-          const style = line.match(/^#/) && styles.header;
-          return (
-            <Fragment key={`${index}-${line}`}>
-              <Text style={style}>{ line }</Text>
-              {lines.length === index + 1 ? null : '\n'}
-            </Fragment>
-          );
+        {ast.map((node, index, lines) => {
+          const style = styles[node.type];
+          if (node.type !== 'link') {
+            const { content } = node;
+            const key = `${index}-${content}`;
+            return (
+              <Text key={key} style={style}>{ content }</Text>
+            );
+          }
         })}
       </Text>
     </TextInput>
@@ -55,6 +69,12 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     paddingHorizontal: 8,
     paddingVertical: 4,
+  },
+  bold: {
+    fontWeight: "900",
+  },
+  italic: {
+    fontStyle: 'italic',
   },
   header: {
     fontWeight: "900",

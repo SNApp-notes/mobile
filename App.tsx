@@ -52,7 +52,14 @@ const Main = () => {
   return (
     <Layout>
       <Editor
-        initValue={NOTE} />
+        initValue={`# HEADER 1
+
+this some text
+* this is list
+
+## Header 2
+
+**bold text**`} />
     </Layout>
   );
 };
