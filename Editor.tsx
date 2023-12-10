@@ -68,7 +68,8 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
                        PreTag={Text}
                        CodeTag={Text}
                        highlighter={'hljs'}
-                     >{ content }
+                     >
+                       { content }
                      </SyntaxHighlighter>
                      <Text>```</Text>
                    </Fragment>
