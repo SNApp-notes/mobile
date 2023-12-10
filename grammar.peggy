@@ -7,7 +7,7 @@ newline = "\n" {
 }
 
 code = "```" name:$[^\n]* code:$(!"\n```" .)* "\n```" {
-    return { type: 'code', content: `${code}\n`, language: name };
+    return { type: 'code', content: code, language: name };
 }
 
 header = level:$'#'+ __ text:$[^\n]+ {

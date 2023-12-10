@@ -224,7 +224,7 @@ function peg$parse(input, options) {
     return { type: 'text', content: '\n' };
 };
   var peg$f2 = function(name, code) {
-    return { type: 'code', content: `${code}\n`, language: name };
+    return { type: 'code', content: code, language: name };
 };
   var peg$f3 = function(level, text) {
     const content = `${level} ${text}`;
