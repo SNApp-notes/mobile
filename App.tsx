@@ -54,7 +54,7 @@ const Main = () => {
       <Editor
         initValue={`# HEADER 1
 
-\`\`\`javascript
+\`\`\`
 function hello(name) {
    return \`hello $\{name}\`;
 }

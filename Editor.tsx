@@ -54,7 +54,7 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
                if (!language) {
                  return (
                    <Text key={key} style={style}>
-                     ```{'\n'}{ content }{'\n'}```
+                     ```{ content }{'\n'}```
                    </Text>
                  );
                } else {
