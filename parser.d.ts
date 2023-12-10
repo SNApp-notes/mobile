@@ -9,6 +9,12 @@ interface TextNode {
     content: string;
 }
 
+interface CodeNode {
+    type: 'code';
+    content: string;
+    language?: string;
+}
+
 interface HeaderNode {
     type: 'header';
     content: string;
@@ -21,7 +27,7 @@ interface LinkNode {
     link: string;
 }
 
-type MarkdownNode = TextNode | LinkNode | HeaderNode;
+type MarkdownNode = TextNode | LinkNode | HeaderNode | CodeNode;
 
 declare function parse(input: string, options?: { startRule?: string }): MarkdownNode[];
 

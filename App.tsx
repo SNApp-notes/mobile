@@ -54,12 +54,11 @@ const Main = () => {
       <Editor
         initValue={`# HEADER 1
 
-this some text
-* this is list
-
-## Header 2
-
-**bold text**`} />
+\`\`\`javascript
+function hello(name) {
+   return \`hello $\{name}\`;
+}
+\`\`\``} />
     </Layout>
   );
 };

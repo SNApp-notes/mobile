@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -7,7 +7,7 @@ import {
   TextStyle
 } from 'react-native';
 import SyntaxHighlighter from 'react-native-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/styles/prism';
+import { atomOneLight } from 'react-syntax-highlighter/styles/hljs';
 import { parse, type HeaderNode, type MarkdownNode } from './parser';
 
 type EditorProps = {
@@ -15,6 +15,8 @@ type EditorProps = {
   style?: StyleProp<TextStyle>;
   onChange?: (value: string) => void;
 };
+
+const fontSize = 14;
 
 const isHeaderNode = (node: MarkdownNode): node is HeaderNode => {
   return node.type === 'header';
@@ -29,10 +31,9 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
   };
   const ast = parse(value);
 
-  
   const headers: HeaderNode[] = ast.filter(isHeaderNode);
-  
-  console.log(JSON.stringify(headers, null, 4));
+
+  console.log(JSON.stringify(ast, null, 4));
 
   return (
     <TextInput
@@ -43,11 +44,37 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
       autoFocus={true}
       onChangeText={changeHandler}>
       <Text>
-        {ast.map((node, index, lines) => {
+        {ast.map((node, index) => {
           const style = styles[node.type];
           if (node.type !== 'link') {
             const { content } = node;
             const key = `${index}-${content}`;
+            if (node.type === 'code') {
+               const { language } = node;
+               if (!language) {
+                 return (
+                   <Text key={key} style={style}>
+                     ```{'\n'}{ content }{'\n'}```
+                   </Text>
+                 );
+               } else {
+                 return (
+                   <Fragment key={key}>
+                     <Text>```{language}</Text>
+                     <SyntaxHighlighter
+                       language={language}
+                       style={atomOneLight}
+                       fontSize={fontSize}
+                       PreTag={Text}
+                       CodeTag={Text}
+                       highlighter={'hljs'}
+                     >{ content }
+                     </SyntaxHighlighter>
+                     <Text>```</Text>
+                   </Fragment>
+                 );
+               }
+            }
             return (
               <Text key={key} style={style}>{ content }</Text>
             );
@@ -65,6 +92,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     textAlign: 'left',
     backgroundColor: 'white',
+    fontSize,
     flex: 1,
     fontFamily: 'monospace',
     paddingHorizontal: 8,
