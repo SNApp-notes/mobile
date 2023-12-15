@@ -3,20 +3,20 @@ start = arr:(header / code / content / newline)+ {
 }
 
 newline = "\n" {
-    return { type: 'text', content: '\n' };
+    return { type: 'text', content: '\n', loc: location() };
 }
 
 code = "```" name:$[^\n]* code:$(!"\n```" .)* "\n```" {
-    return { type: 'code', content: code, language: name };
+    return { type: 'code', content: code, language: name, loc: location() };
 }
 
 header = level:$'#'+ __ text:$[^\n]+ {
     const content = `${level} ${text}`;
-    return { type: 'header', content, level: level.length };
+    return { type: 'header', content, level: level.length, loc: location() };
 }
 
 list_item = '*' __ text:$[^\n]+ {
-    return { type: 'list', content: '* ' + text };
+    return { type: 'list', content: '* ' + text, loc: location() };
 }
 
 inline_text = bold / italic / inline_link / list_item / [^\n]
@@ -45,20 +45,20 @@ inline_link = '[' text:$[^\]]* ']' '(' url:$[^)]+ ')' {
         type: 'link',
         text: text,
         url: url
-    };
+   , loc: location() };
 }
 
 bold = bold_a / bold_b
 
 bold_a = '__' text:(text_bold_a / italic) '__' {
-    return { type: 'bold', content: `__${text}__` };
+    return { type: 'bold', content: `__${text}__`, loc: location() };
 }
 text_bold_a = text:$[^_]+ {
     return text;
 }
 
 bold_b = '**' text:(text_bold_b / italic) '**' {
-    return { type: 'bold', content: `**${text}**` };
+    return { type: 'bold', content: `**${text}**`, loc: location() };
 }
 
 text_bold_b = text:$[^*]+ {
@@ -68,11 +68,11 @@ text_bold_b = text:$[^*]+ {
 italic = italic_a / italic_b
 
 italic_a = '*' !' ' text:$[^*]+ !' ' '*' {
-    return { type: 'italic', content: `*${text}*` };
+    return { type: 'italic', content: `*${text}*`, loc: location() };
 }
 
 italic_b = '_' text:$[^_]+ '_' {
-    return { type: 'italic', content: `_${text}_` };
+    return { type: 'italic', content: `_${text}_`, loc: location() };
 }
 
 nl = "\n"

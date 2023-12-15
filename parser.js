@@ -221,17 +221,17 @@ function peg$parse(input, options) {
    return arr.flat();
 };
   var peg$f1 = function() {
-    return { type: 'text', content: '\n' };
+    return { type: 'text', content: '\n', loc: location() };
 };
   var peg$f2 = function(name, code) {
-    return { type: 'code', content: code, language: name };
+    return { type: 'code', content: code, language: name, loc: location() };
 };
   var peg$f3 = function(level, text) {
     const content = `${level} ${text}`;
-    return { type: 'header', content, level: level.length };
+    return { type: 'header', content, level: level.length, loc: location() };
 };
   var peg$f4 = function(text) {
-    return { type: 'list', content: '* ' + text };
+    return { type: 'list', content: '* ' + text, loc: location() };
 };
   var peg$f5 = function(arr) {
     return arr.reduce((acc, item) => {
@@ -256,25 +256,25 @@ function peg$parse(input, options) {
         type: 'link',
         text: text,
         url: url
-    };
+   , loc: location() };
 };
   var peg$f7 = function(text) {
-    return { type: 'bold', content: `__${text}__` };
+    return { type: 'bold', content: `__${text}__`, loc: location() };
 };
   var peg$f8 = function(text) {
     return text;
 };
   var peg$f9 = function(text) {
-    return { type: 'bold', content: `**${text}**` };
+    return { type: 'bold', content: `**${text}**`, loc: location() };
 };
   var peg$f10 = function(text) {
     return text;
 };
   var peg$f11 = function(text) {
-    return { type: 'italic', content: `*${text}*` };
+    return { type: 'italic', content: `*${text}*`, loc: location() };
 };
   var peg$f12 = function(text) {
-    return { type: 'italic', content: `_${text}_` };
+    return { type: 'italic', content: `_${text}_`, loc: location() };
 };
   var peg$currPos = 0;
   var peg$savedPos = 0;
