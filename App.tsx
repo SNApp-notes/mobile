@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import { type FC, type ReactNode, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -12,6 +12,7 @@ import {
 } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 
+import { NavigationContext, type HeaderNavigationNode } from './Context';
 import Editor from './Editor';
 
 const Drawer = createDrawerNavigator();
@@ -28,15 +29,16 @@ const CustomDrawer = (props: DrawerContentComponentProps) => {
 }
 
 export default function App() {
+  const [headerNodes, setHeaderNodes] = useState<HeaderNavigationNode[]>([]);
   return (
-    <>
+    <NavigationContext.Provider value={{ headerNodes, setHeaderNodes }}>
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Main" drawerContent={CustomDrawer}>
           <Drawer.Screen name="Main" component={Main} />
         </Drawer.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
-    </>
+    </NavigationContext.Provider>
   );
 }
 
@@ -52,70 +54,24 @@ const Main = () => {
   return (
     <Layout>
       <Editor
-        initValue={`# HEADER 1
-
-\`\`\`
-function hello(name) {
-   return \`hello $\{name}\`;
-}
-\`\`\``} />
+        initValue={NOTE} />
     </Layout>
   );
 };
 
-const NOTE = `
-## Remote Images
+const NOTE = `# HEADER 1
 
-<Image source={{ uri: imageUrl }} style={styles.image} />
-
-const styles = StyleSheet.create({
-  image: {
-    width: '100%',
-    height: 200
-  }
-});
-
-
-## React Navigation
-
-const Stack = createNativeStackNavigator();
-import Categories from './components/Categories';
-
-export default function App() {
-  return (
-    <>
-      <StatusBar style="light" />
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Category"> {/* optional or first *}
-          <Stack.Screeen name="Categories" component={Categories}/>
-          <Stack.Screeen name="Category" component={Category}/>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </>
-  );
-};
-
-function Categories({ navigation, route }) {
-  function onPress() {
-    navigation.navigate('Category', { id: 10 });
-  }
-
+\`\`\`javascript
+function hello(name) {
+   return \`hello $\{name}\`;
 }
+\`\`\`
 
-function Category({ route }) {
-  const { id } = route.params;
-  return (
-    <Text>This is { id }</Text>
-  );
-}
+## Header 2
 
+This is some text
 
-import { useNavigation, useRoute } from '@react-navigation/native';
-
-
-function NestedComponent() {
-  const navigation = useNavigation();
-}`
+`
 
 const styles = StyleSheet.create({
   container: {

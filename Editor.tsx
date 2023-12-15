@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -9,6 +9,7 @@ import {
 import SyntaxHighlighter from 'react-native-syntax-highlighter';
 import { atomOneLight } from 'react-syntax-highlighter/styles/hljs';
 import { parse, type HeaderNode, type MarkdownNode } from './parser';
+import { type HeaderNavigationNode, useHeaderNavigation } from './Context';
 
 type EditorProps = {
   initValue: string;
@@ -24,6 +25,7 @@ const isHeaderNode = (node: MarkdownNode): node is HeaderNode => {
 
 const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
   const [value, setValue] = useState<string>(initValue);
+  const { setHeaderNodes } = useHeaderNavigation();
 
   const changeHandler = (text: string) => {
     setValue(text);
@@ -31,9 +33,14 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
   };
   const ast = parse(value);
 
-  const headers: HeaderNode[] = ast.filter(isHeaderNode);
+  const headers: HeaderNavigationNode[] = ast.filter(isHeaderNode).map(node => {
+    const { content, loc: { start: { line } } } = node;
+    return { content, line };
+  });
 
-  console.log(JSON.stringify(ast, null, 4));
+  useEffect(() => {
+    setHeaderNodes(headers);
+  }, [JSON.stringify(headers)]);
 
   return (
     <TextInput
