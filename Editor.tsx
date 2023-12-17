@@ -1,4 +1,4 @@
-import { useState, Fragment, useEffect, useCallback, useRef } from 'react';
+import { useState, Fragment, useEffect, useCallback, useRef, type FC } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -28,7 +28,7 @@ type Selection = {
   end: number;
 };
 
-const EditorNode = ({node}) => {
+const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
   const style = styles[node.type];
   if (node.type !== 'link') {
     const { content } = node;
