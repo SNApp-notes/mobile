@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 export type Handler<T extends unknown[]> = (...args: T) => void;
 
 export class EventEmitter<T extends unknown[]> {
@@ -19,11 +21,15 @@ export class EventEmitter<T extends unknown[]> {
       }
     }
   }
-  trigger(event: string, args: T) {
+  trigger(event: string, ...args: T) {
     if (this.handlers[event]) {
       this.handlers[event].forEach(fn => {
         fn(...args);
       });
     }
   }
+};
+
+export const useEventEmitter = () => {
+  return useMemo(() => new EventEmitter(), []);
 };

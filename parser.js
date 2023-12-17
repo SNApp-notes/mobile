@@ -255,7 +255,8 @@ function peg$parse(input, options) {
     return {
         type: 'link',
         text: text,
-        url: url
+        url: url,
+        content: `[${text}](${url})`
    , loc: location() };
 };
   var peg$f7 = function(text) {

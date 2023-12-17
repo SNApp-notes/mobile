@@ -39,6 +39,7 @@ interface LinkNode {
     type: 'link';
     text: string;
     link: string;
+    content: string;
     loc: location;
 }
 

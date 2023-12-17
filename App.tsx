@@ -22,24 +22,25 @@ import {
 } from '@react-navigation/drawer';
 
 import {
-  useHeaderNavigation,
-  NavigationContext,
-  type HeaderNavigationNode,
-  type JumpHandler
+  useEditorContext,
+  EditorContextProvider
 } from './Context';
 import Editor from './Editor';
 
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
   const navigation = useNavigation();
+  const { hub } = useEditorContext();
   const openRightMenu = () => {
     (navigation as any).getParent('RightDrawer').openDrawer();
+    hub.trigger('open-drawer');
   };
   return (
     <Pressable onPress={openRightMenu} style={({pressed}) => {
       if (pressed) {
         return { opacity: 0.5 };
       }
+      return {};
     }}>
       <Entypo name="menu" size={size} color={color} />
     </Pressable>
@@ -48,12 +49,13 @@ const HamburgerMenu = ({ size = 26, color='black' }) => {
 
 function RightDrawerContent(props: DrawerContentComponentProps) {
   const { navigation } = props;
-  const { headerNodes } = useHeaderNavigation();
+  const { headerNodes, hub } = useEditorContext();
   return (
     <DrawerContentScrollView {...props}>
       {headerNodes.map(node => {
         const onPress = () => {
           (navigation as any).getParent('RightDrawer').closeDrawer();
+          hub.trigger('jump', node.offset);
         };
         return (
           <DrawerItem
@@ -106,14 +108,13 @@ function RightDrawerScreen() {
 }
 
 export default function App() {
-  const [headerNodes, setHeaderNodes] = useState<HeaderNavigationNode[]>([]);
   return (
-    <NavigationContext.Provider value={{ headerNodes, setHeaderNodes }}>
+    <EditorContextProvider>
       <NavigationContainer>
         <RightDrawerScreen />
       </NavigationContainer>
       <StatusBar style="auto" />
-    </NavigationContext.Provider>
+    </EditorContextProvider>
   );
 }
 

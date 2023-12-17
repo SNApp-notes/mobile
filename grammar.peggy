@@ -44,7 +44,8 @@ inline_link = '[' text:$[^\]]* ']' '(' url:$[^)]+ ')' {
     return {
         type: 'link',
         text: text,
-        url: url
+        url: url,
+        content: `[${text}](${url})`
    , loc: location() };
 }
 
