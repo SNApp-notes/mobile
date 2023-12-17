@@ -1,30 +1,107 @@
+import 'react-native-gesture-handler';
 import { type FC, type ReactNode, useState } from 'react';
+import {
+  Button,
+  View,
+  Pressable,
+  Text,
+  SafeAreaView,
+  StyleSheet
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
-  StyleSheet,
-  SafeAreaView
-} from 'react-native';
+  useNavigation,
+  NavigationContainer
+} from '@react-navigation/native';
+import { Entypo } from '@expo/vector-icons';
 import {
   createDrawerNavigator,
+  DrawerContentComponentProps,
   DrawerContentScrollView,
-  DrawerItem,
-  type DrawerContentComponentProps
+  DrawerItem
 } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
 
-import { NavigationContext, type HeaderNavigationNode } from './Context';
+import {
+  useHeaderNavigation,
+  NavigationContext,
+  type HeaderNavigationNode,
+  type JumpHandler
+} from './Context';
 import Editor from './Editor';
 
-const Drawer = createDrawerNavigator();
 
-const CustomDrawer = (props: DrawerContentComponentProps) => {
+const HamburgerMenu = ({ size = 26, color='black' }) => {
+  const navigation = useNavigation();
+  const openRightMenu = () => {
+    (navigation as any).getParent('RightDrawer').openDrawer();
+  };
+  return (
+    <Pressable onPress={openRightMenu} style={({pressed}) => {
+      if (pressed) {
+        return { opacity: 0.5 };
+      }
+    }}>
+      <Entypo name="menu" size={size} color={color} />
+    </Pressable>
+  );
+};
+
+function RightDrawerContent(props: DrawerContentComponentProps) {
+  const { navigation } = props;
+  const { headerNodes } = useHeaderNavigation();
   return (
     <DrawerContentScrollView {...props}>
-      <DrawerItem
-        label="React Native"
-        onPress={() => console.log('React Native')}
-      />
+      {headerNodes.map(node => {
+        const onPress = () => {
+          (navigation as any).getParent('RightDrawer').closeDrawer();
+        };
+        return (
+          <DrawerItem
+            key={`${node.line}-${node.content}`}
+            label={node.content}
+            onPress={onPress} />
+        );
+      })}
     </DrawerContentScrollView>
+  );
+}
+
+const LeftDrawer = createDrawerNavigator();
+
+function LeftDrawerScreen() {
+  return (
+    <LeftDrawer.Navigator
+      id="LeftDrawer"
+      screenOptions={{
+        drawerPosition: 'left',
+        headerTitle: ({ children }) => {
+          return (
+            <View style={styles.drawerHeader}>
+              <Text style={styles.drawerTitle}>{children}</Text>
+              <HamburgerMenu/>
+            </View>
+          );
+        }
+      }}
+    >
+      <LeftDrawer.Screen name="Notes" component={MainScreen} />
+    </LeftDrawer.Navigator>
+  );
+}
+
+const RightDrawer = createDrawerNavigator();
+
+function RightDrawerScreen() {
+  return (
+    <RightDrawer.Navigator
+      id="RightDrawer"
+      drawerContent={(props) => <RightDrawerContent {...props} />}
+      screenOptions={{
+        drawerPosition: 'right',
+        headerShown: false
+      }}>
+      <RightDrawer.Screen name="HomeDrawer" component={LeftDrawerScreen} />
+    </RightDrawer.Navigator>
   );
 }
 
@@ -33,9 +110,7 @@ export default function App() {
   return (
     <NavigationContext.Provider value={{ headerNodes, setHeaderNodes }}>
       <NavigationContainer>
-        <Drawer.Navigator initialRouteName="Main" drawerContent={CustomDrawer}>
-          <Drawer.Screen name="Main" component={Main} />
-        </Drawer.Navigator>
+        <RightDrawerScreen />
       </NavigationContainer>
       <StatusBar style="auto" />
     </NavigationContext.Provider>
@@ -50,7 +125,7 @@ const Layout: FC<{children: ReactNode}> = ({children}) => {
   );
 };
 
-const Main = () => {
+const MainScreen = () => {
   return (
     <Layout>
       <Editor
@@ -71,11 +146,22 @@ function hello(name) {
 
 This is some text
 
-`
+`;
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  drawerHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  drawerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold'
   },
   textarea: {
     textAlignVertical: 'top',
