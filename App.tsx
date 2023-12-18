@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { type FC, type ReactNode, useState } from 'react';
+import { type FC, type ReactNode, useRef, useEffect } from 'react';
 import {
   Button,
   View,
@@ -30,10 +30,10 @@ import Editor from './Editor';
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
   const navigation = useNavigation();
-  const { hub } = useEditorContext();
+  const { editor } = useEditorContext();
   const openRightMenu = () => {
     (navigation as any).getParent('RightDrawer').openDrawer();
-    hub.trigger('open-drawer');
+    editor.current.blur();
   };
   return (
     <Pressable onPress={openRightMenu} style={({pressed}) => {
@@ -49,13 +49,13 @@ const HamburgerMenu = ({ size = 26, color='black' }) => {
 
 function RightDrawerContent(props: DrawerContentComponentProps) {
   const { navigation } = props;
-  const { headerNodes, hub } = useEditorContext();
+  const { headerNodes, editor } = useEditorContext();
   return (
     <DrawerContentScrollView {...props}>
       {headerNodes.map(node => {
         const onPress = () => {
           (navigation as any).getParent('RightDrawer').closeDrawer();
-          hub.trigger('jump', node.offset);
+          editor.current.goto(node.offset);
         };
         return (
           <DrawerItem
@@ -127,9 +127,17 @@ const Layout: FC<{children: ReactNode}> = ({children}) => {
 };
 
 const MainScreen = () => {
+  const editor = useRef();
+  const { setEditorRef } = useEditorContext();
+
+  useEffect(() => {
+    setEditorRef(editor);
+  }, [editor.current]);
+
   return (
     <Layout>
       <Editor
+        ref={editor}
         initValue={NOTE} />
     </Layout>
   );

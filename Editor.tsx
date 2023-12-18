@@ -1,4 +1,11 @@
-import { useState, Fragment, useEffect, useCallback, useRef, type FC } from 'react';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useEffect,
+  useRef,
+  type FC
+} from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -7,9 +14,10 @@ import {
   TextStyle
 } from 'react-native';
 import SyntaxHighlighter from 'react-native-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/styles/hljs';
+import { coy } from 'react-syntax-highlighter/styles/prism';
+
 import { parse, type HeaderNode, type MarkdownNode } from './parser';
-import { type HeaderNavigationNode, useEditorContext } from './Context';
+import { type HeaderNavigationNode, type Editor as EditorRef,  useEditorContext } from './Context';
 
 type EditorProps = {
   initValue: string;
@@ -23,10 +31,10 @@ const isHeaderNode = (node: MarkdownNode): node is HeaderNode => {
   return node.type === 'header';
 };
 
-type Selection = {
+interface Selection {
   start: number;
   end: number;
-};
+}
 
 const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
   const style = styles[node.type];
@@ -46,11 +54,11 @@ const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
             <Text>```{language}</Text>
             <SyntaxHighlighter
               language={language}
-              style={atomOneLight}
+              style={coy}
               fontSize={fontSize}
               PreTag={Text}
               CodeTag={Text}
-              highlighter={'hljs'}
+              highlighter={'prism'}
             >
               { content }
             </SyntaxHighlighter>
@@ -63,12 +71,27 @@ const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
       <Text style={style}>{ content }</Text>
     );
   }
-}
+};
 
-const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
+const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange = () => {} }, ref) => {
+  useImperativeHandle(ref, () => {
+    return {
+      focus() {
+        input.current.focus();
+      },
+      blur() {
+        input.current.blur();
+      },
+      goto(offset: number) {
+        input.current.focus();
+        setSelection({ start: offset, end: offset });
+      }
+    };
+  });
+
   const [value, setValue] = useState<string>(initValue);
   const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
-  const { setHeaderNodes, hub } = useEditorContext();
+  const { setHeaderNodes } = useEditorContext();
   const input = useRef<TextInput>();
 
   const changeHandler = (text: string) => {
@@ -89,25 +112,6 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
   const onSelectionChange = ({ nativeEvent: { selection } }) => {
     setSelection(selection);
   };
-
-  const jumpHandler = useCallback((offset: number) => {
-    input.current.focus();
-    setSelection({ start: offset, end: offset });
-  }, [setSelection]);
-
-  const inputBlur = useCallback(() => {
-    input.current.blur();
-  }, []);
-
-  useEffect(() => {
-    const handler = jumpHandler;
-    hub.on('jump', handler);
-    hub.on('open-drawer', inputBlur);
-    return () => {
-      hub.off('jump', handler);
-      hub.off('open-drawer', inputBlur);
-    };
-  }, [jumpHandler]);
 
   return (
     <TextInput
@@ -130,10 +134,10 @@ const Editor = ({ initValue, style, onChange = () => {} }: EditorProps) => {
               return <EditorNode key={key} node={node}/>;
             })}
           </Text>
-      */}
+       */}
     </TextInput>
   );
-};
+});
 
 export default Editor;
 
