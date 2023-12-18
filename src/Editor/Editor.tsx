@@ -14,7 +14,7 @@ import {
   TextStyle
 } from 'react-native';
 import SyntaxHighlighter from 'react-native-syntax-highlighter';
-import { coy } from 'react-syntax-highlighter/styles/prism';
+import { atomOneLight } from 'react-syntax-highlighter/styles/hljs';
 
 import { parse, type HeaderNode, type MarkdownNode } from './parser';
 import { type HeaderNavigationNode, type Editor as EditorRef,  useEditorContext } from './Context';
@@ -54,11 +54,11 @@ const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
             <Text>```{language}</Text>
             <SyntaxHighlighter
               language={language}
-              style={coy}
+              style={atomOneLight}
               fontSize={fontSize}
               PreTag={Text}
               CodeTag={Text}
-              highlighter={'prism'}
+              highlighter={'hljs'}
             >
               { content }
             </SyntaxHighlighter>
@@ -123,18 +123,15 @@ const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange 
       autoComplete="off"
       autoCorrect={false}
       autoFocus={true}
-      value={value}
       onChangeText={changeHandler}
     >
-      {/*
-          <Text>
-            {ast.map((node, index) => {
-              const { content } = node;
-              const key = `${index}-${content}`;
-              return <EditorNode key={key} node={node}/>;
-            })}
-          </Text>
-       */}
+      <Text>
+        {ast.map((node, index) => {
+          const { content } = node;
+          const key = `${index}-${content}`;
+          return <EditorNode key={key} node={node}/>;
+        })}
+      </Text>
     </TextInput>
   );
 });
