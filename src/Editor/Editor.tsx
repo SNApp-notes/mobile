@@ -84,13 +84,12 @@ const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange 
       },
       goto(offset: number) {
         input.current.focus();
-        setSelection({ start: offset, end: offset });
+        (input.current as any).setSelection(offset, offset);
       }
     };
   });
 
   const [value, setValue] = useState<string>(initValue);
-  const [selection, setSelection] = useState<Selection>({start: 0, end: 0});
   const { setHeaderNodes } = useEditorContext();
   const input = useRef<TextInput>();
 
@@ -109,15 +108,9 @@ const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange 
     setHeaderNodes(headers);
   }, [JSON.stringify(headers)]);
 
-  const onSelectionChange = ({ nativeEvent: { selection } }) => {
-    setSelection(selection);
-  };
-
   return (
     <TextInput
       ref={input}
-      selection={selection}
-      onSelectionChange={onSelectionChange}
       style={[styles.editor, style]}
       multiline
       autoComplete="off"
