@@ -1,7 +1,6 @@
 import 'react-native-gesture-handler';
 import { type FC, type ReactNode, useRef, useEffect } from 'react';
 import {
-  Button,
   View,
   Pressable,
   Text,
@@ -23,9 +22,9 @@ import {
 
 import {
   useEditorContext,
-  EditorContextProvider
-} from './Context';
-import Editor from './Editor';
+  EditorContextProvider,
+  Editor
+} from './Editor';
 
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
