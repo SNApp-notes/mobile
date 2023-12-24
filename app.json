@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "NotesApp",
-    "slug": "NotesApp",
+    "name": "SNApp",
+    "slug": "notes-app",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "white"
     },
     "assetBundlePatterns": [
       "**/*"
