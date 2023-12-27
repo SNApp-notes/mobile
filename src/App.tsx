@@ -1,5 +1,4 @@
 import 'react-native-gesture-handler';
-import { useRef, useEffect } from 'react';
 import {
   View,
   Pressable,
@@ -19,13 +18,17 @@ import {
   DrawerItem
 } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as SQLite from 'expo-sqlite';
+
 import {
   useEditorContext,
-  EditorContextProvider,
-  Editor
+  EditorContextProvider
 } from './Editor';
-import Layout from './Layout';
+import MainScreen from './screens/Main';
+import Settings from './screens/Settings';
+
+const RightDrawer = createDrawerNavigator();
+const LeftDrawer = createDrawerNavigator();
+const BottomStack = createBottomTabNavigator();
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
   const navigation = useNavigation();
@@ -46,7 +49,7 @@ const HamburgerMenu = ({ size = 26, color='black' }) => {
   );
 };
 
-function RightDrawerContent(props: DrawerContentComponentProps) {
+const RightDrawerContent = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
   const { headerNodes, editor } = useEditorContext();
   return (
@@ -65,12 +68,9 @@ function RightDrawerContent(props: DrawerContentComponentProps) {
       })}
     </DrawerContentScrollView>
   );
-}
+};
 
-const LeftDrawer = createDrawerNavigator();
-const BottomStack = createBottomTabNavigator();
-
-function BottomTabs() {
+const BottomTabs = () => {
   return (
     <BottomStack.Navigator>
       <BottomStack.Screen
@@ -94,19 +94,9 @@ function BottomTabs() {
       />
     </BottomStack.Navigator>
   );
-}
+};
 
-function Settings() {
-  return (
-    <Layout>
-      <View>
-        <Text>Settings</Text>
-      </View>
-    </Layout>
-  );
-}
-
-function LeftDrawerScreen() {
+const LeftDrawerScreen = () => {
   return (
     <LeftDrawer.Navigator
       id="LeftDrawer"
@@ -125,11 +115,9 @@ function LeftDrawerScreen() {
       <LeftDrawer.Screen name="Notes" component={MainScreen} />
     </LeftDrawer.Navigator>
   );
-}
+};
 
-const RightDrawer = createDrawerNavigator();
-
-function RightDrawerScreen() {
+const RightDrawerScreen = () => {
   return (
     <RightDrawer.Navigator
       id="RightDrawer"
@@ -141,9 +129,10 @@ function RightDrawerScreen() {
       <RightDrawer.Screen name="HomeDrawer" component={LeftDrawerScreen} />
     </RightDrawer.Navigator>
   );
-}
+};
 
-export default function App() {
+
+const App = () => {
   return (
     <EditorContextProvider>
       <NavigationContainer>
@@ -152,57 +141,11 @@ export default function App() {
       <StatusBar style="auto" />
     </EditorContextProvider>
   );
-}
-
-const MainScreen = () => {
-  const editor = useRef();
-  const db = useRef<SQLite.SQLiteDatabase>();
-  const { setEditorRef } = useEditorContext();
-
-  useEffect(() => {
-    setEditorRef(editor);
-  }, [editor.current]);
-
-  useEffect(() => {
-    db.current = SQLite.openDatabase('notes.db');
-    db.current.transaction(tx => {
-      tx.executeSql(`CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY
-                     AUTOINCREMENT, name VARCHAR(255), content TEXT, draft
-                     TEXT, directory INTEGER`);
-      tx.executeSql(`CREATE TABLE IF NOT EXISTS directories(id INTEGER PRIMARY
-                     KEY AUTOINCREMENT, name VARCHAR(255), parent INTEGER
-                     DEFAULT NULL`);
-    });
-  }, [db]);
-
-  return (
-    <Layout>
-      <Editor
-        ref={editor}
-        initValue={NOTE} />
-    </Layout>
-  );
 };
 
-const NOTE = `# HEADER 1
-
-\`\`\`javascript
-function hello(name) {
-   return \`hello $\{name}\`;
-}
-\`\`\`
-
-## Header 2
-
-This is some text
-
-`;
-
+export default App;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   drawerHeader: {
     width: '100%',
     flexDirection: 'row',
@@ -212,18 +155,5 @@ const styles = StyleSheet.create({
   drawerTitle: {
     fontSize: 18,
     fontWeight: 'bold'
-  },
-  textarea: {
-    textAlignVertical: 'top',
-    textAlign: 'left',
-    backgroundColor: 'white',
-    flex: 1,
-    fontFamily: 'monospace',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  header: {
-    fontWeight: "900",
-    color: '#0045C9',
-  },
+  }
 });
