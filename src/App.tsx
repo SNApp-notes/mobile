@@ -12,20 +12,20 @@ import {
   useNavigation,
   NavigationContainer
 } from '@react-navigation/native';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, AntDesign } from '@expo/vector-icons';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem
 } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import {
   useEditorContext,
   EditorContextProvider,
   Editor
 } from './Editor';
-
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
   const navigation = useNavigation();
@@ -68,6 +68,43 @@ function RightDrawerContent(props: DrawerContentComponentProps) {
 }
 
 const LeftDrawer = createDrawerNavigator();
+const BottomStack = createBottomTabNavigator();
+
+function BottomTabs() {
+  return (
+    <BottomStack.Navigator>
+      <BottomStack.Screen
+        name="Notes"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="filetext1" size={size} color={color} />
+          )
+        }}
+        component={RightDrawerScreen}
+      />
+      <BottomStack.Screen
+        name="Settings"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="setting" size={size} color={color} />
+          )
+        }}
+        component={Settings}
+      />
+    </BottomStack.Navigator>
+  );
+}
+
+function Settings() {
+  return (
+    <Layout>
+      <View>
+        <Text>Settings</Text>
+      </View>
+    </Layout>
+  );
+}
 
 function LeftDrawerScreen() {
   return (
@@ -110,7 +147,7 @@ export default function App() {
   return (
     <EditorContextProvider>
       <NavigationContainer>
-        <RightDrawerScreen />
+        <BottomTabs/>
       </NavigationContainer>
       <StatusBar style="auto" />
     </EditorContextProvider>
