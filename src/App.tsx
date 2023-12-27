@@ -1,10 +1,9 @@
 import 'react-native-gesture-handler';
-import { type FC, type ReactNode, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import {
   View,
   Pressable,
   Text,
-  SafeAreaView,
   StyleSheet
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -26,6 +25,7 @@ import {
   EditorContextProvider,
   Editor
 } from './Editor';
+import Layout from './Layout';
 
 const HamburgerMenu = ({ size = 26, color='black' }) => {
   const navigation = useNavigation();
@@ -153,14 +153,6 @@ export default function App() {
     </EditorContextProvider>
   );
 }
-
-const Layout: FC<{children: ReactNode}> = ({children}) => {
-  return (
-    <SafeAreaView style={styles.container}>
-      {children}
-    </SafeAreaView>
-  );
-};
 
 const MainScreen = () => {
   const editor = useRef();

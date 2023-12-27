@@ -3,6 +3,8 @@
 # dependencies
 node_modules/
 
+src/**/*.js
+
 # Expo
 .expo/
 dist/
@@ -21,12 +23,6 @@ web-build/
 
 # debug
 npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
 
 # local env files
 .env*.local
