@@ -1,4 +1,5 @@
 import Editor from './Editor';
+import { type Theme } from './Editor';
 
 export * from './Context';
-export { Editor };
+export { Editor, type Theme };

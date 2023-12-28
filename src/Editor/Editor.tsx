@@ -4,26 +4,41 @@ import {
   useState,
   useEffect,
   useRef,
-  type FC
+  type FC,
+  type ReactNode
 } from 'react';
 import {
   StyleSheet,
   TextInput,
   Text,
   StyleProp,
-  TextStyle
+  TextStyle,
+  type ColorValue
 } from 'react-native';
-import SyntaxHighlighter from 'react-native-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/styles/hljs';
+import SyntaxHighlighter from 'rn-syntax-highlighter';
+
+export interface CodeTheme {
+  type: 'prism' | 'hljs';
+  style: any;
+}
+
+export interface Theme {
+  normal: ColorValue;
+  header: ColorValue;
+  code: CodeTheme;
+}
+
+import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 import { parse, type HeaderNode, type MarkdownNode } from './parser';
 import { type HeaderNavigationNode, type Editor as EditorRef,  useEditorContext } from './Context';
 
-type EditorProps = {
+interface EditorProps {
   initValue: string;
   style?: StyleProp<TextStyle>;
+  theme?: Theme;
   onChange?: (value: string) => void;
-};
+}
 
 const fontSize = 14;
 
@@ -31,49 +46,69 @@ const isHeaderNode = (node: MarkdownNode): node is HeaderNode => {
   return node.type === 'header';
 };
 
-interface Selection {
-  start: number;
-  end: number;
+interface EditorNodeProps {
+  node: MarkdownNode;
+  theme: Theme;
 }
 
-const EditorNode: FC<{node: MarkdownNode}> = ({node}) => {
-  const style = styles[node.type];
+const DummyText: FC<{children: ReactNode}> = ({ children }) => {
+  return <Text>{children}</Text>;
+};
+
+const EditorNode: FC<EditorNodeProps> = ({node, theme}) => {
+  const defaultStyle = styles[node.type];
+  const isCode = node.type === 'code';
+  const style = {
+    color: isCode ? theme.normal : theme[node.type] ?? theme.normal
+  };
   if (node.type !== 'link') {
     const { content } = node;
     if (node.type === 'code') {
       const { language } = node;
       if (!language) {
         return (
-          <Text style={style}>
+          <Text style={[defaultStyle, style]}>
             ```{ content }{'\n'}```
           </Text>
         );
       } else {
         return (
           <>
-            <Text>```{language}</Text>
+            <Text style={[defaultStyle, style]}>```{language}</Text>
             <SyntaxHighlighter
               language={language}
-              style={atomOneLight}
+              style={theme.code.style }
               fontSize={fontSize}
-              PreTag={Text}
-              CodeTag={Text}
-              highlighter={'hljs'}
+              PreTag={DummyText}
+              CodeTag={DummyText}
+              highlighter={theme.code.type}
             >
               { content }
             </SyntaxHighlighter>
-            <Text>```</Text>
+            <Text style={[defaultStyle, style]}>{'\n'}```</Text>
           </>
         );
       }
     }
     return (
-      <Text style={style}>{ content }</Text>
+      <Text style={[defaultStyle, style]}>{ content }</Text>
     );
   }
 };
 
-const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange = () => {} }, ref) => {
+const Editor = forwardRef<EditorRef, EditorProps>(({
+  initValue,
+  style,
+  theme = {
+    header: '#0045C9',
+    normal: '#000',
+    code: {
+      type: 'hljs',
+      style: atomOneLight
+    }
+  },
+  onChange = () => {}
+}, ref) => {
   useImperativeHandle(ref, () => {
     return {
       focus() {
@@ -122,7 +157,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(({ initValue, style, onChange 
         {ast.map((node, index) => {
           const { content } = node;
           const key = `${index}-${content}`;
-          return <EditorNode key={key} node={node}/>;
+          return <EditorNode key={key} theme={theme} node={node}/>;
         })}
       </Text>
     </TextInput>
@@ -149,7 +184,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   header: {
-    fontWeight: "900",
-    color: '#0045C9',
+    fontWeight: "900"
   },
 });

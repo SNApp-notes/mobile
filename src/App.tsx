@@ -1,16 +1,13 @@
 import 'react-native-gesture-handler';
 import {
   View,
-  Pressable,
   Text,
   StyleSheet
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import {
-  useNavigation,
   NavigationContainer
 } from '@react-navigation/native';
-import { Entypo, AntDesign } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -23,30 +20,34 @@ import {
   useEditorContext,
   EditorContextProvider
 } from './Editor';
+import { ThemeProvider, useTheme } from './Theme';
 import MainScreen from './screens/Main';
 import Settings from './screens/Settings';
+import StatusBar from './StatusBar';
+import HamburgerMenu from './HamburgerMenu';
+import colors from './const/colors';
 
 const RightDrawer = createDrawerNavigator();
 const LeftDrawer = createDrawerNavigator();
 const BottomStack = createBottomTabNavigator();
 
-const HamburgerMenu = ({ size = 26, color='black' }) => {
-  const navigation = useNavigation();
-  const { editor } = useEditorContext();
-  const openRightMenu = () => {
-    (navigation as any).getParent('RightDrawer').openDrawer();
-    editor.current.blur();
+const useNavigationStyle = () => {
+  const { darkMode } = useTheme();
+  const backgroundColor = darkMode ? colors.dark.header : colors.light.header;
+  const color = darkMode ? '#fff' : '#000'
+  const dimmColor = darkMode? '#646464' : '#4A4A4A';
+  const focusColor = darkMode ? '#0F6FDB' : '#D5CBFF';
+  return {
+    headerStyle: {
+      backgroundColor
+    },
+    tabBarInactiveTintColor: dimmColor,
+    tabBarActiveTintColor: focusColor,
+    tabBarStyle: {
+      backgroundColor
+    },
+    headerTintColor: color
   };
-  return (
-    <Pressable onPress={openRightMenu} style={({pressed}) => {
-      if (pressed) {
-        return { opacity: 0.5 };
-      }
-      return {};
-    }}>
-      <Entypo name="menu" size={size} color={color} />
-    </Pressable>
-  );
 };
 
 const RightDrawerContent = (props: DrawerContentComponentProps) => {
@@ -70,9 +71,52 @@ const RightDrawerContent = (props: DrawerContentComponentProps) => {
   );
 };
 
-const BottomTabs = () => {
+
+const LeftDrawerScreen = () => {
+  const options = useNavigationStyle();
+  const color = options.headerTintColor;
   return (
-    <BottomStack.Navigator>
+    <LeftDrawer.Navigator
+      id="LeftDrawer"
+      screenOptions={{
+        ...options,
+        drawerPosition: 'left',
+        headerTitle: ({ children }) => {
+          return (
+            <View style={styles.drawerHeader}>
+              <Text style={[styles.drawerTitle, { color }]}>{children}</Text>
+              <HamburgerMenu color={color}/>
+            </View>
+          );
+        }
+      }}
+    >
+      <LeftDrawer.Screen name="Notes" component={MainScreen} />
+    </LeftDrawer.Navigator>
+  );
+};
+
+const RightDrawerScreen = () => {
+  const options = useNavigationStyle();
+  return (
+    <RightDrawer.Navigator
+      id="RightDrawer"
+      drawerContent={(props) => <RightDrawerContent {...props} />}
+      screenOptions={{
+        ...options,
+        drawerPosition: 'right',
+        headerShown: false
+      }}>
+      <RightDrawer.Screen name="HomeDrawer" component={LeftDrawerScreen} />
+    </RightDrawer.Navigator>
+  );
+};
+
+const BottomTabs = () => {
+  const options = useNavigationStyle();
+  return (
+    <BottomStack.Navigator
+      screenOptions={options}>
       <BottomStack.Screen
         name="Notes"
         options={{
@@ -96,49 +140,15 @@ const BottomTabs = () => {
   );
 };
 
-const LeftDrawerScreen = () => {
-  return (
-    <LeftDrawer.Navigator
-      id="LeftDrawer"
-      screenOptions={{
-        drawerPosition: 'left',
-        headerTitle: ({ children }) => {
-          return (
-            <View style={styles.drawerHeader}>
-              <Text style={styles.drawerTitle}>{children}</Text>
-              <HamburgerMenu/>
-            </View>
-          );
-        }
-      }}
-    >
-      <LeftDrawer.Screen name="Notes" component={MainScreen} />
-    </LeftDrawer.Navigator>
-  );
-};
-
-const RightDrawerScreen = () => {
-  return (
-    <RightDrawer.Navigator
-      id="RightDrawer"
-      drawerContent={(props) => <RightDrawerContent {...props} />}
-      screenOptions={{
-        drawerPosition: 'right',
-        headerShown: false
-      }}>
-      <RightDrawer.Screen name="HomeDrawer" component={LeftDrawerScreen} />
-    </RightDrawer.Navigator>
-  );
-};
-
-
 const App = () => {
   return (
     <EditorContextProvider>
-      <NavigationContainer>
-        <BottomTabs/>
-      </NavigationContainer>
-      <StatusBar style="auto" />
+      <ThemeProvider>
+        <NavigationContainer>
+          <BottomTabs/>
+        </NavigationContainer>
+        <StatusBar/>
+      </ThemeProvider>
     </EditorContextProvider>
   );
 };
