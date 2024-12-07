@@ -13,25 +13,12 @@ import colors from '../const/colors';
 
 const MainScreen = () => {
   const editor = useRef();
-  const db = useRef<SQLite.SQLiteDatabase>();
   const { setEditorRef } = useEditorContext();
   const { darkMode } = useTheme();
 
   useEffect(() => {
     setEditorRef(editor);
   }, [editor.current]);
-
-  useEffect(() => {
-    db.current = SQLite.openDatabase('notes.db');
-    db.current.transaction(tx => {
-      tx.executeSql(`CREATE TABLE IF NOT EXISTS notes(id INTEGER PRIMARY KEY
-                     AUTOINCREMENT, name VARCHAR(255), content TEXT, draft
-                     TEXT, directory INTEGER`);
-      tx.executeSql(`CREATE TABLE IF NOT EXISTS directories(id INTEGER PRIMARY
-                     KEY AUTOINCREMENT, name VARCHAR(255), parent INTEGER
-                     DEFAULT NULL`);
-    });
-  }, [db]);
 
   const style = {
     backgroundColor: darkMode ? colors.dark.main : colors.light.main
